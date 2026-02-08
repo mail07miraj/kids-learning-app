@@ -1,9 +1,7 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import English from "./pages/English";
 import Numbers from "./pages/Numbers";
 import EnglishKeyboard from "./pages/EnglishKeyboard";
 import BanglaKeyboard from "./pages/BanglaKeyboard";
-import Quiz from "./pages/Quiz";
 import LetterQuiz from "./pages/LetterQuiz";
 
 function Home() {
@@ -53,23 +51,17 @@ function Home() {
       {/* ENGLISH */}
       <h1>📘 English Learning</h1>
       <div style={cardWrap}>
-        <AnimatedCard onClick={() => navigate("/english")}>
-          <h2 style={floatText}>🔤 ABC</h2>
-        </AnimatedCard>
-
         <AnimatedCard onClick={() => navigate("/english-keyboard")}>
           <h2 style={floatText}>⌨️ ABC Keyboard</h2>
           <p>A–Z with Sound</p>
         </AnimatedCard>
 
         <AnimatedCard onClick={() => navigate("/numbers")}>
-  <div style={numberBox}>
-    1&nbsp;2&nbsp;3
-  </div>
-  <p style={{ fontSize: "18px", marginTop: "10px" }}>
-    Numbers
-  </p>
-</AnimatedCard>
+          <div style={numberBox}>1&nbsp;2&nbsp;3</div>
+          <p style={{ fontSize: "18px", marginTop: "10px" }}>
+            Numbers
+          </p>
+        </AnimatedCard>
 
         <AnimatedCard onClick={() => navigate("/letter-quiz")}>
           <h2 style={floatText}>🎮 Letter Quiz</h2>
@@ -82,14 +74,6 @@ function Home() {
       <div style={cardWrap}>
         <AnimatedCard onClick={() => navigate("/bangla-keyboard")}>
           <h3 style={floatText}>🍌 ফল / 🐯 প্রাণী</h3>
-        </AnimatedCard>
-      </div>
-
-      {/* FUN */}
-      <h2 style={{ marginTop: "40px" }}>🎮 Fun</h2>
-      <div style={cardWrap}>
-        <AnimatedCard onClick={() => alert("Quiz coming soon 🙂")}>
-          <h3 style={floatText}>⭐ Quiz</h3>
         </AnimatedCard>
       </div>
 
@@ -116,11 +100,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/english" element={<English />} />
-      <Route path="/numbers" element={<Numbers />} />
       <Route path="/english-keyboard" element={<EnglishKeyboard />} />
+      <Route path="/numbers" element={<Numbers />} />
       <Route path="/bangla-keyboard" element={<BanglaKeyboard />} />
-      <Route path="/quiz" element={<Quiz />} />
       <Route path="/letter-quiz" element={<LetterQuiz />} />
     </Routes>
   );
@@ -148,6 +130,7 @@ const cardStyle = {
 const floatText = {
   animation: "float 3s ease-in-out infinite"
 };
+
 const numberBox = {
   fontSize: "64px",
   fontWeight: "bold",
