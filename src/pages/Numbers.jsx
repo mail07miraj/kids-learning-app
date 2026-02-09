@@ -57,3 +57,17 @@ const styles = {
 };
 
 export default NumbersChart;
+<button
+          onClick={() => window.history.back()}
+          style={{
+            padding: "10px 18px",
+            borderRadius: "12px",
+            border: "none",
+            background: "#22c55e",
+            color: "#fff",
+            fontSize: "18px",
+            cursor: "pointer"
+          }}
+        >
+          ⬅️ Back
+        </button>

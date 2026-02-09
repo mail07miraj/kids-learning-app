@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import KeyboardLayout from "../components/KeyboardLayout";
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 function randomLetter() {

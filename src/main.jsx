@@ -8,3 +8,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <App />
   </BrowserRouter>
 );
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+}
+
