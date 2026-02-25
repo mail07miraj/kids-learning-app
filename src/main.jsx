@@ -4,15 +4,23 @@ import { BrowserRouter } from "react-router-dom";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App";
 
-registerSW({
+const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    window.location.reload();
+    console.log("New version available, reloading...");
+    updateSW(true);   // 🔥 force update
   },
   onOfflineReady() {
-    console.log("App ready to work offline");
+    console.log("App ready offline");
   }
 });
+
+// 🔥 extra safety: reload when controller changes
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+}
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
