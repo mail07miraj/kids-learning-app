@@ -73,7 +73,7 @@ function Home() {
       <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা 📕</h2>
       <div style={cardWrap}>
         <AnimatedCard onClick={() => navigate("/bangla-keyboard")}>
-          <h3 style={floatText}>🍌 বাংলা (ফল / 🐯 প্রাণী)</h3>
+          <h3 style={floatText}> বাংলা (🍌 ফল / 🐯 প্রাণী)</h3>
         </AnimatedCard>
       </div>
 
