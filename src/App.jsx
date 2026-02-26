@@ -45,11 +45,11 @@ function Home() {
           marginBottom: "20px"
         }}
       >
-        🎉 Kids Learning App V2 🎉
+        🎉 Kids Learning App 🎉
       </h1>
 
       {/* ENGLISH */}
-      <h1>📘 English Alphabate</h1>
+      <h1>📘 English Learning 📘</h1>
       <div style={cardWrap}>
         <AnimatedCard onClick={() => navigate("/english-keyboard")}>
           <h2 style={floatText}>⌨️ ABC Keyboard</h2>
