@@ -2,8 +2,8 @@ import KeyboardLayout from "../components/KeyboardLayout";
 
 const data = [
   // স্বর
-  { l: "অ", w: "আম", img: "https://cdn-icons-png.flaticon.com/512/686/686655.png" },
-  { l: "আ", w: "আমড়া", img: "https://cdn-icons-png.flaticon.com/512/590/590685.png" },
+  { l: "অ", w: "অলি", img: "https://cdn-icons-png.flaticon.com/512/686/686655.png" },
+  { l: "আ", w: "আম", img: "https://cdn-icons-png.flaticon.com/512/590/590685.png" },
   { l: "ই", w: "ইদুর", img: "https://cdn-icons-png.flaticon.com/512/1998/1998642.png" },
   { l: "ঈ", w: "ঈগল", img: "https://cdn-icons-png.flaticon.com/512/1998/1998633.png" },
   { l: "উ", w: "উট", img: "https://cdn-icons-png.flaticon.com/512/1998/1998620.png" },
