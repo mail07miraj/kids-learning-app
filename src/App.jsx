@@ -70,7 +70,7 @@ function Home() {
       </div>
 
       {/* BANGLA */}
-      <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা</h2>
+      <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা 📕</h2>
       <div style={cardWrap}>
         <AnimatedCard onClick={() => navigate("/bangla-keyboard")}>
           <h3 style={floatText}>🍌 বাংলা (ফল / 🐯 প্রাণী)</h3>
