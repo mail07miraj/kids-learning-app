@@ -3,7 +3,8 @@ import Numbers from "./pages/Numbers";
 import EnglishKeyboard from "./pages/EnglishKeyboard";
 import BanglaKeyboard from "./pages/BanglaKeyboard";
 import LetterQuiz from "./pages/LetterQuiz";
-
+import BanglaFruits from "./pages/BanglaFruits";
+import BanglaAnimals from "./pages/BanglaAnimals";
 function Home() {
   const navigate = useNavigate();
 
@@ -68,7 +69,16 @@ function Home() {
           <p>Find the Alphabet</p>
         </AnimatedCard>
       </div>
+        <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা</h2>
+<div style={cardWrap}>
+  <AnimatedCard onClick={() => navigate("/bangla-fruits")}>
+    <h3 style={floatText}>🍌 ফল</h3>
+  </AnimatedCard>
 
+  <AnimatedCard onClick={() => navigate("/bangla-animals")}>
+    <h3 style={floatText}>🐯 প্রাণী</h3>
+  </AnimatedCard>
+</div>
       {/* BANGLA */}
       <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা 📕</h2>
       <div style={cardWrap}>
@@ -104,6 +114,8 @@ export default function App() {
       <Route path="/numbers" element={<Numbers />} />
       <Route path="/bangla-keyboard" element={<BanglaKeyboard />} />
       <Route path="/letter-quiz" element={<LetterQuiz />} />
+      <Route path="/bangla-fruits" element={<BanglaFruits />} />
+      <Route path="/bangla-animals" element={<BanglaAnimals />} />  
     </Routes>
   );
 }
