@@ -3,8 +3,8 @@ import Numbers from "./pages/Numbers";
 import EnglishKeyboard from "./pages/EnglishKeyboard";
 import BanglaKeyboard from "./pages/BanglaKeyboard";
 import LetterQuiz from "./pages/LetterQuiz";
-import BanglaFruits from "./pages/BanglaFruits";
 import BanglaAnimals from "./pages/BanglaAnimals";
+import BanglaFruits from "./pages/BanglaFruits";
 function Home() {
   const navigate = useNavigate();
 
@@ -115,7 +115,7 @@ export default function App() {
       <Route path="/bangla-keyboard" element={<BanglaKeyboard />} />
       <Route path="/letter-quiz" element={<LetterQuiz />} />
       <Route path="/bangla-fruits" element={<BanglaFruits />} />
-      <Route path="/bangla-animals" element={<BanglaAnimals />} />  
+      <Route path="/bangla-animals" element={<BanglaAnimals />} />
     </Routes>
   );
 }
