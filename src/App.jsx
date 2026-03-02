@@ -1,30 +1,49 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import Numbers from "./pages/Numbers";
 import EnglishKeyboard from "./pages/EnglishKeyboard";
-import BanglaKeyboard from "./pages/BanglaKeyboard";
-import LetterQuiz from "./pages/LetterQuiz";
-import BanglaAnimals from "./pages/BanglaAnimals";
-import BanglaFruits from "./pages/BanglaFruits";
+import BanglaSwaroborno from "./pages/BanglaSwaroborno";
+import BanglaByanjan from "./pages/BanglaByanjan";
+import BanglaNumbers from "./pages/BanglaNumbers";
+import BanglaRhymes from "./pages/BanglaRhymes";
 function Home() {
   const navigate = useNavigate();
 
-  // reusable animated card
-  const AnimatedCard = ({ onClick, children }) => (
+  const Section = ({ title, children }) => (
+    <div style={{ marginTop: "50px" }}>
+      <h2 style={{ marginBottom: "20px", fontSize: "28px" }}>
+        {title}
+      </h2>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "20px"
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+
+  const Card = ({ text, onClick }) => (
     <div
-      style={cardStyle}
       onClick={onClick}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = "translateY(-6px) scale(1.03)";
-        e.currentTarget.style.boxShadow =
-          "0 18px 32px rgba(0,0,0,0.25)";
+      style={{
+        background: "#fff",
+        padding: "25px",
+        borderRadius: "20px",
+        textAlign: "center",
+        cursor: onClick ? "pointer" : "default",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+        transition: "0.2s"
       }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = "none";
-        e.currentTarget.style.boxShadow =
-          "0 10px 20px rgba(0,0,0,0.18)";
-      }}
+      onMouseEnter={e =>
+        (e.currentTarget.style.transform = "translateY(-5px)")
+      }
+      onMouseLeave={e =>
+        (e.currentTarget.style.transform = "none")
+      }
     >
-      {children}
+      {text}
     </div>
   );
 
@@ -32,76 +51,43 @@ function Home() {
     <div
       style={{
         fontFamily: "Comic Sans MS",
-        backgroundColor: "#fef9c3",
+        background: "linear-gradient(135deg,#fef9c3,#bfdbfe)",
         minHeight: "100vh",
-        padding: "20px",
-        animation: "fadeIn 0.6s ease"
+        padding: "30px"
       }}
     >
-      <h1
-        style={{
-          textAlign: "center",
-          color: "#ec4899",
-          fontSize: "50px",
-          marginBottom: "20px"
-        }}
-      >
+      <h1 style={{ textAlign: "center", fontSize: "50px", color: "#ec4899" }}>
         🎉 Kids Learning App 🎉
       </h1>
 
-      {/* ENGLISH */}
-      <h1>📘 English Learning 📘</h1>
-      <div style={cardWrap}>
-        <AnimatedCard onClick={() => navigate("/english-keyboard")}>
-          <h2 style={floatText}>⌨️ ABC Keyboard</h2>
-          <p>A–Z with Sound</p>
-        </AnimatedCard>
+      <Section title="📚 Language Learning">
+        <Card
+          text="🔤 ABC"
+          onClick={() => navigate("/english-keyboard")}
+        />
+        <Card text="🔤 স্বরবর্ণ" onClick={() => navigate("/bangla-swaroborno")} />
+        <Card text="🔡 ব্যঞ্জনবর্ণ" onClick={() => navigate("/bangla-byanjan")}/>
+        <Card text="🔢 বাংলা সংখ্যা" onClick={() => navigate("/bangla-numbers")} />
+        <Card text="🕌 আরবি বর্ণমালা" />
+      </Section>
 
-        <AnimatedCard onClick={() => navigate("/numbers")}>
-          <div style={numberBox}>1&nbsp;2&nbsp;3</div>
-          <p style={{ fontSize: "18px", marginTop: "10px" }}>
-            Numbers
-          </p>
-        </AnimatedCard>
+      <Section title="🎵 Rhymes & Recitation">
+        <Card text="📖 বাংলা ছড়া" onClick={() => navigate("/bangla-rhymes")} />
+        <Card text="🎶 English Rhymes" />
+        <Card text="🎼 গজল" />
+      </Section>
 
-        <AnimatedCard onClick={() => navigate("/letter-quiz")}>
-          <h2 style={floatText}>🎮 Letter Quiz</h2>
-          <p>Find the Alphabet</p>
-        </AnimatedCard>
-      </div>
-        <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা</h2>
-<div style={cardWrap}>
-  <AnimatedCard onClick={() => navigate("/bangla-fruits")}>
-    <h3 style={floatText}>🍌 ফল</h3>
-  </AnimatedCard>
+      <Section title="☪️ Islamic Learning">
+        <Card text="📜 সূরা" />
+        <Card text="🕋 কালেমা" />
+        <Card text="🤲 দোয়া" />
+      </Section>
 
-  <AnimatedCard onClick={() => navigate("/bangla-animals")}>
-    <h3 style={floatText}>🐯 প্রাণী</h3>
-  </AnimatedCard>
-</div>
-      {/* BANGLA */}
-      <h2 style={{ marginTop: "40px" }}>📕 বাংলা শেখা 📕</h2>
-      <div style={cardWrap}>
-        <AnimatedCard onClick={() => navigate("/bangla-keyboard")}>
-          <h3 style={floatText}> বাংলা (🍌 ফল / 🐯 প্রাণী)</h3>
-        </AnimatedCard>
-      </div>
-
-      {/* ANIMATIONS */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          @keyframes float {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-            100% { transform: translateY(0); }
-          }
-        `}
-      </style>
+      <Section title="🌍 General Knowledge">
+        <Card text="🥦 Vegetables, Fruits & Flowers" />
+        <Card text="🐯 Animals, Birds & Vehicles" />
+        <Card text="🧍 Human Body" />
+      </Section>
     </div>
   );
 }
@@ -111,46 +97,10 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/english-keyboard" element={<EnglishKeyboard />} />
-      <Route path="/numbers" element={<Numbers />} />
-      <Route path="/bangla-keyboard" element={<BanglaKeyboard />} />
-      <Route path="/letter-quiz" element={<LetterQuiz />} />
-      <Route path="/bangla-fruits" element={<BanglaFruits />} />
-      <Route path="/bangla-animals" element={<BanglaAnimals />} />
+      <Route path="/bangla-swaroborno" element={<BanglaSwaroborno />} />
+      <Route path="/bangla-byanjan" element={<BanglaByanjan />} />
+      <Route path="/bangla-numbers" element={<BanglaNumbers />} />
+      <Route path="/bangla-rhymes" element={<BanglaRhymes />} />
     </Routes>
   );
 }
-
-/* ===== STYLES ===== */
-
-const cardWrap = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "24px",
-  marginTop: "20px"
-};
-
-const cardStyle = {
-  backgroundColor: "#fff",
-  padding: "24px",
-  borderRadius: "24px",
-  textAlign: "center",
-  cursor: "pointer",
-  boxShadow: "0 10px 20px rgba(0,0,0,0.18)",
-  transition: "transform 0.2s ease, box-shadow 0.2s ease"
-};
-
-const floatText = {
-  animation: "float 3s ease-in-out infinite"
-};
-
-const numberBox = {
-  fontSize: "64px",
-  fontWeight: "bold",
-  color: "#2563eb",
-  background: "#eef2ff",
-  borderRadius: "18px",
-  padding: "12px 20px",
-  display: "inline-block",
-  letterSpacing: "6px",
-  animation: "float 3s ease-in-out infinite"
-};
