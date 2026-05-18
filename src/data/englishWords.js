@@ -1,6 +1,5 @@
-import KeyboardLayout from "../components/KeyboardLayout";
-
-const data = [
+export const englishWords = 
+[
   { l: "A", w: "Apple", img: "https://image2url.com/r2/default/images/1769805485053-3b85a7e5-7f39-45f7-bb73-3204790bba69.png" },
   { l: "B", w: "Ball", img: "https://cdn-icons-png.flaticon.com/512/861/861512.png" },
   { l: "C", w: "Cat", img: "https://image2url.com/r2/default/images/1769805833880-52e5c73b-7a31-4556-972a-a845c83df071.png" },
@@ -28,14 +27,3 @@ const data = [
   { l: "Y", w: "YoYo", img: "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDlnZmRwbnlpbGpydG52Ynkwc2phYnR4ZWlscm1mY2d6YzU3bGZ6ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qBcsHNO3ulvMuUE/giphy.gif" },
   { l: "Z", w: "Zebra", img: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExd294OG12dDZyYmMwZm9hZ2I3cG1xZHB1Znh3MDA2eDAyMGRkdmRteCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FA7Ao05T81V9m/giphy.gif" }
 ];
-
-export default function EnglishKeyboard() {
-  return (
-    <KeyboardLayout
-      title="English Alphabet"
-      data={data}
-      lang="en-US"
-      speakText={(i) => `${i.l} for ${i.w}`}
-    />
-  );
-}
