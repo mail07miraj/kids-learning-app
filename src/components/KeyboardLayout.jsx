@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 export default function KeyboardLayout({
   data,
@@ -6,11 +6,8 @@ export default function KeyboardLayout({
 }) {
   const [index, setIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
   const [showInstall, setShowInstall] = useState(false);
   const deferredPromptRef = useRef(null);
-
-  const item = data[index];
 
   const audioRef = useRef(null);
 
@@ -19,11 +16,11 @@ export default function KeyboardLayout({
   const mouseStartX = useRef(0);
   const lastTap = useRef(0);
 
-  if (!item) return null;
+  const item = data[index];
 
   // 🔊 PLAY AUDIO
-  function playSound() {
-    if (!item.audio) return;
+  const playSound = useCallback(() => {
+    if (!item || !item.audio) return;
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -34,20 +31,41 @@ export default function KeyboardLayout({
 
     audioRef.current = audio;
     audio.play();
-  }
+  }, [item]);
 
   // 🔇 STOP AUDIO
-  function stopSound() {
+  const stopSound = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  }
+  }, []);
+
+  // Navigation functions
+  const next = useCallback(() => {
+    setIndex(i => (i + 1) % data.length);
+  }, [data.length]);
+
+  const prev = useCallback(() => {
+    setIndex(i => (i === 0 ? data.length - 1 : i - 1));
+  }, [data.length]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
 
   // 🔊 AUTO PLAY
   useEffect(() => {
-    playSound();
-  }, [index]);
+    if (item) {
+      playSound();
+    }
+  }, [index, playSound, item]);
 
   // ⌨️ KEYBOARD CONTROL
   useEffect(() => {
@@ -58,7 +76,7 @@ export default function KeyboardLayout({
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [next, prev]);
 
   // 📱 TOUCH GESTURE
   useEffect(() => {
@@ -91,7 +109,7 @@ export default function KeyboardLayout({
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [item]);
+  }, [next, prev, playSound, stopSound, toggleFullscreen]);
 
   // 🖱️ MOUSE SWIPE
   useEffect(() => {
@@ -113,7 +131,7 @@ export default function KeyboardLayout({
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, []);
+  }, [next, prev]);
 
   // 📲 INSTALL PROMPT
   useEffect(() => {
@@ -129,23 +147,7 @@ export default function KeyboardLayout({
       window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
   }, []);
 
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  }
-
-  function next() {
-    setIndex(i => (i + 1) % data.length);
-  }
-
-  function prev() {
-    setIndex(i => (i === 0 ? data.length - 1 : i - 1));
-  }
+  if (!item) return null;
 
   return (
     <div

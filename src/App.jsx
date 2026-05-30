@@ -11,49 +11,52 @@ import BodyParts from "./pages/BodyParts";
 import ArabicLetters from "./pages/ArabicLetters";
 import EnglishWords from "./pages/EnglishWords";
 import BanglaWords from "./pages/BanglaWords";
+
+// Section component moved outside Home
+const Section = ({ title, children }) => (
+  <div style={{ marginTop: "50px" }}>
+    <h2 style={{ marginBottom: "20px", fontSize: "28px" }}>
+      {title}
+    </h2>
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: "20px"
+      }}
+    >
+      {children}
+    </div>
+  </div>
+);
+
+// Card component moved outside Home
+const Card = ({ text, onClick }) => (
+  <div
+    onClick={onClick}
+    style={{
+      background: "#fff",
+      padding: "25px",
+      borderRadius: "20px",
+      textAlign: "center",
+      cursor: onClick ? "pointer" : "default",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+      transition: "0.2s"
+    }}
+    onMouseEnter={(e) =>
+      (e.currentTarget.style.transform = "translateY(-5px)")
+    }
+    onMouseLeave={(e) =>
+      (e.currentTarget.style.transform = "none")
+    }
+  >
+    {text}
+  </div>
+);
+
 function Home() {
   const navigate = useNavigate();
-
-  const Section = ({ title, children }) => (
-    <div style={{ marginTop: "50px" }}>
-      <h2 style={{ marginBottom: "20px", fontSize: "28px" }}>
-        {title}
-      </h2>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px"
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-
-  const Card = ({ text, onClick }) => (
-    <div
-      onClick={onClick}
-      style={{
-        background: "#fff",
-        padding: "25px",
-        borderRadius: "20px",
-        textAlign: "center",
-        cursor: onClick ? "pointer" : "default",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-        transition: "0.2s"
-      }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.transform = "translateY(-5px)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.transform = "none")
-      }
-    >
-      {text}
-    </div>
-  );
 
   return (
     <div
@@ -85,7 +88,7 @@ function Home() {
       </Section>
 
       <Section title="🎵 Rhymes & Recitation">
-        <Card text="📖 বাংলা ছড়া" onClick={() => navigate("/bangla-rhymes")} />
+        <Card text="📖 বাংলা ছড়া" onClick={() => navigate("/bangla-rhymes")} />
         <Card text="🎶 English Rhymes (Coming Soon)" />
         <Card text="🎼 গজল (Coming Soon)" />
       </Section>
@@ -93,7 +96,7 @@ function Home() {
       <Section title="☪️ Islamic Learning">
         <Card text="📜 সূরা (Coming Soon)" />
         <Card text="🕋 কালেমা (Coming Soon)" />
-        <Card text="🤲 দোয়া (Coming Soon)" />
+        <Card text="🤲 দোয়া (Coming Soon)" />
       </Section>
 
       <Section title="🌍 General Knowledge">
