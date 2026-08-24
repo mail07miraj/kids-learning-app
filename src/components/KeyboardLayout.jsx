@@ -1,302 +1,206 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import ControlBar from "./ControlBar";
 
-export default function KeyboardLayout({
-  data,
-  title
-}) {
+function getLabel(item) {
+  return item?.label ?? item?.l ?? "";
+}
+
+function getWord(item) {
+  return item?.word ?? item?.w ?? "";
+}
+
+function getSpokenText(item) {
+  const label = getLabel(item);
+  const word = getWord(item);
+  return word ? `${label}. ${word}` : label;
+}
+
+export default function KeyboardLayout({ data = [], title }) {
   const [index, setIndex] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showInstall, setShowInstall] = useState(false);
-  const deferredPromptRef = useRef(null);
-
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
   const audioRef = useRef(null);
-
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
-  const mouseStartX = useRef(0);
-  const lastTap = useRef(0);
-
+  const playIdRef = useRef(0);
   const item = data[index];
 
-  // 🔊 PLAY AUDIO
-  const playSound = useCallback(() => {
-    if (!item || !item.audio) return;
-
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    const audio = new Audio(item.audio);
-    audio.volume = 1;
-
-    audioRef.current = audio;
-    audio.play();
-  }, [item]);
-
-  // 🔇 STOP AUDIO
   const stopSound = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+    playIdRef.current += 1;
+    audioRef.current?.pause();
+    if (audioRef.current) audioRef.current.currentTime = 0;
+    audioRef.current = null;
+    window.speechSynthesis?.cancel();
+    setIsPlaying(false);
   }, []);
 
-  // Navigation functions
+  useEffect(() => () => stopSound(), [stopSound]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted, volume]);
+
+  const speakFallback = useCallback((lessonItem, playId) => {
+    if (isMuted || !window.speechSynthesis) {
+      setIsPlaying(false);
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      const utterance = new SpeechSynthesisUtterance(getSpokenText(lessonItem));
+      utterance.lang = "en-US";
+      utterance.rate = 0.84;
+      utterance.pitch = 1.12;
+      utterance.volume = volume;
+      utterance.onend = () => {
+        if (playIdRef.current === playId) setIsPlaying(false);
+        resolve();
+      };
+      utterance.onerror = () => {
+        if (playIdRef.current === playId) setIsPlaying(false);
+        resolve();
+      };
+      window.speechSynthesis.speak(utterance);
+    });
+  }, [isMuted, volume]);
+
+  const playItem = useCallback(async (lessonItem) => {
+    if (!lessonItem) return;
+    stopSound();
+    const playId = playIdRef.current;
+    setIsPlaying(true);
+
+    if (!lessonItem.audio) {
+      await speakFallback(lessonItem, playId);
+      return;
+    }
+
+    const audio = new Audio(lessonItem.audio);
+    audio.volume = isMuted ? 0 : volume;
+    audio.muted = isMuted;
+    audioRef.current = audio;
+    await new Promise((resolve) => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        if (playIdRef.current === playId) {
+          audioRef.current = null;
+          setIsPlaying(false);
+        }
+        resolve();
+      };
+      const fallback = async () => {
+        if (settled) return;
+        settled = true;
+        audio.pause();
+        audioRef.current = null;
+        await speakFallback(lessonItem, playId);
+        resolve();
+      };
+      audio.onended = finish;
+      audio.onerror = fallback;
+      const playPromise = audio.play();
+      if (playPromise) playPromise.catch(fallback);
+    });
+  }, [isMuted, speakFallback, stopSound, volume]);
+
+  const playCurrent = useCallback(() => {
+    void playItem(item);
+  }, [item, playItem]);
+
+  const goTo = useCallback((nextIndex) => {
+    setIndex(nextIndex);
+    void playItem(data[nextIndex]);
+  }, [data, playItem]);
+
   const next = useCallback(() => {
-    setIndex(i => (i + 1) % data.length);
-  }, [data.length]);
+    if (!data.length) return;
+    goTo((index + 1) % data.length);
+  }, [data.length, goTo, index]);
 
   const prev = useCallback(() => {
-    setIndex(i => (i === 0 ? data.length - 1 : i - 1));
-  }, [data.length]);
+    if (!data.length) return;
+    goTo(index === 0 ? data.length - 1 : index - 1);
+  }, [data.length, goTo, index]);
 
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  }, []);
-
-  // 🔊 AUTO PLAY
   useEffect(() => {
-    if (item) {
-      playSound();
-    }
-  }, [index, playSound, item]);
-
-  // ⌨️ KEYBOARD CONTROL
-  useEffect(() => {
-    function onKey(e) {
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-    }
-
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [next, prev]);
-
-  // 📱 TOUCH GESTURE
-  useEffect(() => {
-    function onTouchStart(e) {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
-
-      const now = Date.now();
-      if (now - lastTap.current < 300) toggleFullscreen();
-      lastTap.current = now;
-    }
-
-    function onTouchEnd(e) {
-      const dx = touchStartX.current - e.changedTouches[0].clientX;
-      const dy = touchStartY.current - e.changedTouches[0].clientY;
-
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 60) next();
-        if (dx < -60) prev();
-      } else {
-        if (dy < -60) playSound();
-        if (dy > 60) stopSound();
+    const onKeyDown = (event) => {
+      if (event.key === "ArrowRight") next();
+      if (event.key === "ArrowLeft") prev();
+      if (event.key === " " || event.key === "Enter") {
+        if (event.target === document.body) {
+          event.preventDefault();
+          playCurrent();
+        }
       }
-    }
-
-    window.addEventListener("touchstart", onTouchStart);
-    window.addEventListener("touchend", onTouchEnd);
-
-    return () => {
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [next, prev, playSound, stopSound, toggleFullscreen]);
-
-  // 🖱️ MOUSE SWIPE
-  useEffect(() => {
-    function onMouseDown(e) {
-      mouseStartX.current = e.clientX;
-    }
-
-    function onMouseUp(e) {
-      const diff = mouseStartX.current - e.clientX;
-
-      if (diff > 80) next();
-      if (diff < -80) prev();
-    }
-
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mouseup", onMouseUp);
-
-    return () => {
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-  }, [next, prev]);
-
-  // 📲 INSTALL PROMPT
-  useEffect(() => {
-    function handleInstallPrompt(e) {
-      e.preventDefault();
-      deferredPromptRef.current = e;
-      setShowInstall(true);
-    }
-
-    window.addEventListener("beforeinstallprompt", handleInstallPrompt);
-
-    return () =>
-      window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
-  }, []);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [next, playCurrent, prev]);
 
   if (!item) return null;
 
+  const label = getLabel(item);
+  const word = getWord(item);
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg,#c7d2fe,#fde68a,#bbf7d0)",
-        fontFamily: "Comic Sans MS",
-        padding: "20px"
-      }}
-    >
-      {/* TOP BAR */}
+    <main className="lesson-shell lesson-shell--single-card">
+      <div className="lesson-background-shape lesson-background-shape--one" aria-hidden="true" />
+      <div className="lesson-background-shape lesson-background-shape--two" aria-hidden="true" />
+      <div className="lesson-content lesson-content--single-card">
+        <ControlBar
+          onPlay={playCurrent}
+          onStop={stopSound}
+          isPlaying={isPlaying}
+          isMuted={isMuted}
+          volume={volume}
+          onToggleMute={() => setIsMuted((muted) => !muted)}
+          onVolumeChange={setVolume}
+        />
 
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button style={topBtn} onClick={() => window.history.back()}>
-          ⬅ Back
-        </button>
+        <header className="lesson-heading lesson-heading--compact">
+          <span className="lesson-heading__sparkle" aria-hidden="true">✦</span>
+          <h1>{title}</h1>
+          <p>Card {index + 1} of {data.length} · tap the picture or Play sound</p>
+        </header>
 
-        <button style={topBtn} onClick={toggleFullscreen}>
-          {isFullscreen ? "Exit" : "Fullscreen"}
-        </button>
-
-        <button style={topBtn} onClick={playSound}>
-          🔊 Play
-        </button>
-
-        <button style={topBtn} onClick={stopSound}>
-          🔇 Stop
-        </button>
-
-        {showInstall && (
-          <button
-            style={{ ...topBtn, background: "#22c55e" }}
-            onClick={async () => {
-              const prompt = deferredPromptRef.current;
-              if (!prompt) return;
-
-              await prompt.prompt();
-              await prompt.userChoice;
-
-              deferredPromptRef.current = null;
-              setShowInstall(false);
-            }}
-          >
-            Install App
+        <section className="single-card" aria-live="polite">
+          <div className="single-card__copy">
+            <span className="single-card__eyebrow">Say it with me</span>
+            <button className="single-card__letter" onClick={playCurrent} type="button" aria-label={`Hear ${label} ${word}`}>
+              {label}
+            </button>
+            <h2>{word}</h2>
+            <button className="single-card__listen" onClick={playCurrent} type="button">
+              <span aria-hidden="true">{isPlaying ? "♫" : "🔊"}</span>
+              {isPlaying ? "Listening…" : "Hear this card"}
+            </button>
+          </div>
+          <button className="single-card__art" onClick={playCurrent} type="button" aria-label={`Hear ${word}`}>
+            {item.img ? (
+              <img src={item.img} alt={word} onError={(event) => { event.currentTarget.style.display = "none"; }} />
+            ) : (
+              <span aria-hidden="true">✨</span>
+            )}
           </button>
-        )}
-      </div>
+        </section>
 
-      <h2 style={{ textAlign: "center" }}>{title}</h2>
-
-      {/* MAIN CARD */}
-
-      <div
-        style={{
-          marginTop: "30px",
-          background: "white",
-          borderRadius: "30px",
-          padding: "40px",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "20px"
-        }}
-      >
-        <div style={{ textAlign: "center", flex: 1 }}>
-          <div
-            style={{
-              fontSize: "160px",
-              color: "#2563eb",
-              cursor: "pointer"
-            }}
-            onClick={playSound}
-          >
-            {item.l}
+        <div className="lesson-navigation">
+          <button className="lesson-nav-button" onClick={prev} type="button" aria-label="Previous card">
+            <span aria-hidden="true">←</span> Previous
+          </button>
+          <div className="lesson-dots" aria-label={`Card ${index + 1} of ${data.length}`}>
+            {data.map((entry, dotIndex) => (
+              <span className={dotIndex === index ? "lesson-dot lesson-dot--active" : "lesson-dot"} key={`${getLabel(entry)}-${dotIndex}`} />
+            ))}
           </div>
-
-          <div style={{ fontSize: "40px", marginTop: "10px" }}>
-            {item.w}
-          </div>
-        </div>
-
-        <div style={{ flex: 1, textAlign: "center" }}>
-          <img
-            src={item.img}
-            alt=""
-            style={{
-              width: "240px",
-              cursor: "pointer",
-              animation: "float 2.5s ease-in-out infinite"
-            }}
-            onClick={playSound}
-          />
+          <button className="lesson-nav-button lesson-nav-button--next" onClick={next} type="button" aria-label="Next card">
+            Next <span aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
-
-      {/* NAVIGATION */}
-
-      <div
-        style={{
-          position: "fixed",
-          bottom: "30px",
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "0 30px"
-        }}
-      >
-        <button style={navBtn} onClick={prev}>
-          ⬅
-        </button>
-
-        <button style={navBtn} onClick={next}>
-          ➡
-        </button>
-      </div>
-
-      <style>
-        {`
-        @keyframes float{
-        0%{transform:translateY(0)}
-        50%{transform:translateY(-18px)}
-        100%{transform:translateY(0)}
-        }
-        `}
-      </style>
-    </div>
+    </main>
   );
 }
-
-const topBtn = {
-  padding: "10px 16px",
-  borderRadius: "14px",
-  border: "none",
-  background: "#3b82f6",
-  color: "white",
-  cursor: "pointer",
-  fontWeight: "bold"
-};
-
-const navBtn = {
-  width: "90px",
-  height: "90px",
-  fontSize: "36px",
-  borderRadius: "50%",
-  border: "none",
-  background: "#22c55e",
-  color: "white",
-  cursor: "pointer",
-  boxShadow: "0 10px 20px rgba(0,0,0,0.3)"
-};

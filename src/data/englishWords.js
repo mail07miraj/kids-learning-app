@@ -1,5 +1,4 @@
-export const englishWords = 
-[
+export const englishWords = [
   { l: "A", w: "Apple", img: "https://image2url.com/r2/default/images/1769805485053-3b85a7e5-7f39-45f7-bb73-3204790bba69.png" },
   { l: "B", w: "Ball", img: "https://cdn-icons-png.flaticon.com/512/861/861512.png" },
   { l: "C", w: "Cat", img: "https://image2url.com/r2/default/images/1769805833880-52e5c73b-7a31-4556-972a-a845c83df071.png" },

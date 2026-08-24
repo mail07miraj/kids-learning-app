@@ -1,13 +1,6 @@
-import LearningGrid from "../components/LearningGrid";
+import KeyboardLayout from "../components/KeyboardLayout";
 import { englishWords } from "../data/englishWords";
 
-const EnglishWords = () => {
-  return (
-    <LearningGrid
-      title="🍎 A for Apple"
-      data={englishWords}
-    />
-  );
-};
-
-export default EnglishWords; // এই লাইনটি নিশ্চিত করুন একদম শেষে আছে
+export default function EnglishWords() {
+  return <KeyboardLayout title="🍎 A for Apple" data={englishWords} />;
+}
